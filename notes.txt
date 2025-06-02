@@ -1,0 +1,32 @@
+BACKEND
+1. initialize your app by typing npm init -y (the -y flag will automaticaly set up yhe default)
+2. initialize eslint for checking syntax and possible errors npm init @eslint/config@latest
+
+[new concept]: SETTING UP ENV
+1. create config folder, then create env.js
+2. config the dotenv
+3. on the root folder, create these two env files
+    -  .env.production.local
+    -  .env.development.local
+4. inn gitignore file, type .env.*.local 
+
+import config from dotenv
+
+config({ path: `.env.${ process.env.NODE_ENV || "development" }.local` }) // dynamic name
+- in here if there is not NODE_ENV detected, then by default the env.development will be used (callback)
+
+export const { PORT } = process.env // in this example, PORT is pulled from the env file
+
+
+CREATING ROUTES
+1. create a /routes folder
+2. in creating a router, follow the structure of the following code
+
+import { Router } from "express"
+
+const authRouter = Router();
+
+// router.method("path", () => { callback function })
+authRouter.post("log-in", (req, res) => { res.send({ title: "Login" }) })
+
+
