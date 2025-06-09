@@ -229,56 +229,58 @@ Establishing a connection to your database is one of the first critical steps fo
 
 Inside the `/database` folder, create a file named `mongodb.js` (or `db.js`) and set up your connection function.
 
-* **Install Mongoose:**
-    ```bash
-    npm install mongoose
-    ```
-* **`database/mongodb.js`:**
-    ```javascript
-    // database/mongodb.js
-    import mongoose from 'mongoose'; // For ES Modules
-    // const mongoose = require('mongoose'); // For CommonJS
+- **Install Mongoose:**
+  ```bash
+  npm install mongoose
+  ```
+- **`database/mongodb.js`:**
 
-    // Ensure your DB_URI is loaded from environment variables (e.g., via config/env.js)
-    import { DATABASE_URL } from '../config/env.js'; // Adjust path based on your structure
+  ```javascript
+  // database/mongodb.js
+  import mongoose from "mongoose"; // For ES Modules
+  // const mongoose = require('mongoose'); // For CommonJS
 
-    const connectToDB = async () => {
-      try {
-        // Attempt to connect to MongoDB using the URI from your environment variables
-        await mongoose.connect(DATABASE_URL);
-        console.log(`✅ Successfully connected to MongoDB!`);
-      } catch (error) {
-        console.error(`❌ Error connecting to database: ${error.message}`);
-        // Terminate the process if the database connection fails, as the app cannot function without it.
-        process.exit(1);
-      }
-    };
+  // Ensure your DB_URI is loaded from environment variables (e.g., via config/env.js)
+  import { DATABASE_URL } from "../config/env.js"; // Adjust path based on your structure
 
-    export default connectToDB; // Export the connection function
-    ```
+  const connectToDB = async () => {
+    try {
+      // Attempt to connect to MongoDB using the URI from your environment variables
+      await mongoose.connect(DATABASE_URL);
+      console.log(`✅ Successfully connected to MongoDB!`);
+    } catch (error) {
+      console.error(`❌ Error connecting to database: ${error.message}`);
+      // Terminate the process if the database connection fails, as the app cannot function without it.
+      process.exit(1);
+    }
+  };
+
+  export default connectToDB; // Export the connection function
+  ```
 
 ### 🔌 Integrating the Connection
 
 You should call your `connectToDB` function when your application starts, typically before your Express server begins listening for requests.
 
-* **In your main application file (e.g., `server.js` or `app.js`):**
-    ```javascript
-    // server.js (or app.js)
-    import express from 'express';
-    import { PORT } from './config/env.js'; // Ensure PORT is imported from your env config
-    import connectToDB from './database/mongodb.js'; // Import your database connection function
+- **In your main application file (e.g., `server.js` or `app.js`):**
 
-    const app = express();
-    app.use(express.json()); // Middleware to parse JSON request bodies
+  ```javascript
+  // server.js (or app.js)
+  import express from "express";
+  import { PORT } from "./config/env.js"; // Ensure PORT is imported from your env config
+  import connectToDB from "./database/mongodb.js"; // Import your database connection function
 
-    // ... (other middleware and routes) ...
+  const app = express();
+  app.use(express.json()); // Middleware to parse JSON request bodies
 
-    // Start the server and then connect to the database
-    app.listen(PORT, async () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-      await connectToDB(); // Connect to the database
-    });
-    ```
+  // ... (other middleware and routes) ...
+
+  // Start the server and then connect to the database
+  app.listen(PORT, async () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    await connectToDB(); // Connect to the database
+  });
+  ```
 
 ---
 
@@ -288,56 +290,57 @@ Models are blueprints for your data. In Mongoose, you define a `Schema` which ma
 
 ### 📂 Folder Structure
 
-* Create a `/models` folder in your project's root. This will contain your Mongoose model definitions.
+- Create a `/models` folder in your project's root. This will contain your Mongoose model definitions.
 
 ### 📝 Defining a Schema
 
-* **`models/Product.js`:**
-    ```javascript
-    // models/Product.js
-    import { Schema, model } from "mongoose"; // Import Schema and model from mongoose
+- **`models/Product.js`:**
 
-    // Define the schema for the Product model
-    const productSchema = new Schema({
-      // property_name: { type: DataType, required: [true, "Custom error message"], ...other_constraints }
-      // Mongoose allows custom error messages for validation constraints.
-      // Format: [ constraint_value, "message if constraint is not met" ]
+  ```javascript
+  // models/Product.js
+  import { Schema, model } from "mongoose"; // Import Schema and model from mongoose
 
-      name: {
-        type: String,
-        required: [true, "Product name is required."], // 'name' is mandatory
-        maxLength: [50, "Product name cannot exceed 50 characters."], // Max length of 50 characters
-        trim: true // Automatically remove leading/trailing whitespace
-      },
-      price: {
-        type: Number,
-        required: [true, "Product price is required."],
-        min: [0, "Price cannot be negative."] // Price must be 0 or greater
-      },
-      description: {
-        type: String,
-        maxLength: [500, "Description cannot exceed 500 characters."]
-      },
-      category: {
-        type: String,
-        enum: ["Electronics", "Books", "Clothing", "Home"], // Value must be one of these
-        required: [true, "Product category is required."]
-      },
-      createdAt: {
-        type: Date,
-        default: Date.now // Automatically set creation date
-      }
-    });
+  // Define the schema for the Product model
+  const productSchema = new Schema({
+    // property_name: { type: DataType, required: [true, "Custom error message"], ...other_constraints }
+    // Mongoose allows custom error messages for validation constraints.
+    // Format: [ constraint_value, "message if constraint is not met" ]
 
-    // Create the Mongoose Model from the schema
-    // The first argument "Product" is the singular name of the collection.
-    // Mongoose will automatically pluralize it to "products" in MongoDB.
-    const Product = model("Product", productSchema);
+    name: {
+      type: String,
+      required: [true, "Product name is required."], // 'name' is mandatory
+      maxLength: [50, "Product name cannot exceed 50 characters."], // Max length of 50 characters
+      trim: true, // Automatically remove leading/trailing whitespace
+    },
+    price: {
+      type: Number,
+      required: [true, "Product price is required."],
+      min: [0, "Price cannot be negative."], // Price must be 0 or greater
+    },
+    description: {
+      type: String,
+      maxLength: [500, "Description cannot exceed 500 characters."],
+    },
+    category: {
+      type: String,
+      enum: ["Electronics", "Books", "Clothing", "Home"], // Value must be one of these
+      required: [true, "Product category is required."],
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now, // Automatically set creation date
+    },
+  });
 
-    // Models should generally be capitalized (e.g., 'Product', 'User').
-    // Export the model for use in your routes/controllers.
-    export default Product;
-    ```
+  // Create the Mongoose Model from the schema
+  // The first argument "Product" is the singular name of the collection.
+  // Mongoose will automatically pluralize it to "products" in MongoDB.
+  const Product = model("Product", productSchema);
+
+  // Models should generally be capitalized (e.g., 'Product', 'User').
+  // Export the model for use in your routes/controllers.
+  export default Product;
+  ```
 
 ---
 
@@ -349,114 +352,324 @@ Middleware functions in Express are functions that have access to the request ob
 
 A common use case for middleware is to perform checks or operations before a request reaches its final route handler.
 
-* **Example: Authentication Middleware**
-    This middleware checks if a user is authenticated before allowing access to a protected route.
+- **Example: Authentication Middleware**
+  This middleware checks if a user is authenticated before allowing access to a protected route.
 
-    ```javascript
-    // In a middleware file, e.g., middleware/authMiddleware.js
-    import jwt from 'jsonwebtoken'; // You'll need to install jsonwebtoken: npm install jsonwebtoken
+  ```javascript
+  // In a middleware file, e.g., middleware/authMiddleware.js
+  import jwt from "jsonwebtoken"; // You'll need to install jsonwebtoken: npm install jsonwebtoken
 
-    // This function will be placed before a route handler
-    const authenticateUser = (req, res, next) => {
-      // Assuming token is sent in cookies or Authorization header
-      const { authToken } = req.cookies; // You might need 'cookie-parser' middleware for this: npm install cookie-parser
+  // This function will be placed before a route handler
+  const authenticateUser = (req, res, next) => {
+    // Assuming token is sent in cookies or Authorization header
+    const { authToken } = req.cookies; // You might need 'cookie-parser' middleware for this: npm install cookie-parser
 
-      if (!authToken) {
-        return res.status(401).json({ message: "Unauthorized: No token provided." });
-      }
+    if (!authToken) {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized: No token provided." });
+    }
 
-      try {
-        // Verify the token using your secret key from environment variables
-        // Make sure process.env.JWT_SECRET is defined in your .env files
-        const decoded = jwt.verify(authToken, process.env.JWT_SECRET);
+    try {
+      // Verify the token using your secret key from environment variables
+      // Make sure process.env.JWT_SECRET is defined in your .env files
+      const decoded = jwt.verify(authToken, process.env.JWT_SECRET);
 
-        // Attach the decoded user information to the request object
-        // This makes user data available to subsequent middleware/route handlers
-        req.user = decoded;
+      // Attach the decoded user information to the request object
+      // This makes user data available to subsequent middleware/route handlers
+      req.user = decoded;
 
-        next(); // Proceed to the next middleware or route handler
-      } catch (error) {
-        // Handle cases where the token is invalid or expired
-        return res.status(401).json({ message: "Unauthorized: Invalid or expired token." });
-      }
-    };
+      next(); // Proceed to the next middleware or route handler
+    } catch (error) {
+      // Handle cases where the token is invalid or expired
+      return res
+        .status(401)
+        .json({ message: "Unauthorized: Invalid or expired token." });
+    }
+  };
 
-    export default authenticateUser;
-    ```
+  export default authenticateUser;
+  ```
 
-* **Using Middleware in Routes:**
-    ```javascript
-    // routes/someProtectedRoutes.js
-    import { Router } from "express";
-    import authenticateUser from '../middleware/authMiddleware.js'; // Import the middleware
+- **Using Middleware in Routes:**
 
-    const protectedRouter = Router();
+  ```javascript
+  // routes/someProtectedRoutes.js
+  import { Router } from "express";
+  import authenticateUser from "../middleware/authMiddleware.js"; // Import the middleware
 
-    // This route will only be accessible if authenticateUser passes
-    protectedRouter.post("/create-resource", authenticateUser, (req, res) => {
-      // If we reach here, req.user will contain the decoded token payload
-      res.status(201).json({ message: `Resource created by user: ${req.user.id}` });
-    });
+  const protectedRouter = Router();
 
-    export default protectedRouter;
-    ```
+  // This route will only be accessible if authenticateUser passes
+  protectedRouter.post("/create-resource", authenticateUser, (req, res) => {
+    // If we reach here, req.user will contain the decoded token payload
+    res
+      .status(201)
+      .json({ message: `Resource created by user: ${req.user.id}` });
+  });
+
+  export default protectedRouter;
+  ```
 
 ### 🌐 Global Error Handling Middleware
 
 A global error handler is a special type of middleware that catches errors thrown by other middleware or route handlers. It's defined with four arguments: `(err, req, res, next)`. Express recognizes this signature as an error-handling middleware.
 
-* **Create an Error Handler File (e.g., `middleware/errorHandler.js`):**
+- **Create an Error Handler File (e.g., `middleware/errorHandler.js`):**
+
+  ```javascript
+  // middleware/errorHandler.js
+
+  const errorHandler = (err, req, res, next) => {
+    console.error(err.stack); // Log the error stack for debugging
+
+    const statusCode = err.statusCode || 500; // Use custom status code if available, else 500
+    const message = err.message || "Something went wrong on the server.";
+
+    res.status(statusCode).json({
+      success: false,
+      message: message,
+      // In development, you might send the error stack; in production, avoid it for security
+      stack: process.env.NODE_ENV === "development" ? err.stack : {},
+    });
+  };
+
+  export default errorHandler;
+  ```
+
+- **Integrate into your `app.js` (or `server.js`):**
+  The global error handler should be the **last** middleware loaded in your Express application, after all other routes and middleware.
+
+  ```javascript
+  // server.js (or app.js)
+  import express from "express";
+  import { PORT } from "./config/env.js";
+  import connectToDB from "./database/mongodb.js";
+  import authRouter from "./routes/authRoutes.js";
+  import protectedRouter from "./routes/someProtectedRoutes.js"; // Example protected routes
+  import errorHandler from "./middleware/errorHandler.js"; // Import the error handler
+  import cookieParser from "cookie-parser"; // For req.cookies in auth middleware
+
+  const app = express();
+
+  // --- Standard Middleware ---
+  app.use(express.json()); // Parses JSON request bodies
+  app.use(cookieParser()); // Parses cookies for req.cookies
+
+  // --- Routes ---
+  app.use("/api/auth", authRouter);
+  app.use("/api/protected", protectedRouter); // Example of using protected routes
+
+  // --- Global Error Handler ---
+  // This MUST be the last middleware added to your Express app
+  app.use(errorHandler);
+
+  // Start the server and connect to the database
+  app.listen(PORT, async () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    await connectToDB();
+  });
+  ```
+
+  Any `throw new Error()` or unhandled promise rejections in your routes or other middleware will be caught by this `errorHandler`.
+
+---
+
+**Date: June 4, 2025**
+
+---
+
+## 8. 🔑 JWT Authentication & Atomic Operations
+
+JSON Web Tokens (JWTs) are a compact, URL-safe means of representing claims to be transferred between two parties. They are commonly used for authentication and authorization in web applications. Atomic operations (transactions) ensure data integrity by guaranteeing that a series of database operations either all succeed or all fail together.
+
+### 📦 Installation
+
+* Install the necessary libraries for JWT and password hashing:
+    ```bash
+    npm install jsonwebtoken bcryptjs
+    ```
+
+### 🔒 Environment Variable
+
+* In your `.env` file (e.g., `.env.development.local`), define a secret key for signing your JWTs. This should be a strong, randomly generated string.
+
+    ```
+    JWT_SECRET=your_super_secret_jwt_key_here
+    ```
+
+### 📂 Controllers Folder
+
+* Create a `/controllers` folder in your project's root. This folder will contain the business logic for your routes, separating concerns from your route definitions. Each file in this folder will typically handle the logic for specific API endpoints (e.g., `authController.js`, `userController.js`).
+
+### ➕ Atomic Operations (Mongoose Transactions)
+
+An **atomic operation** (or **transaction**) is a sequence of database operations that is treated as a single logical unit of work. It ensures that either all operations within the transaction are completed successfully (committed), or if any part fails, the entire transaction is rolled back, leaving the database in its original state. This is crucial for maintaining data consistency and integrity, especially when multiple related operations need to succeed or fail together (e.g., transferring money from one account to another).
+
+In Mongoose (MongoDB), you can implement transactions using **sessions**.
+
+* **Sample Application: User Sign-Up with Transaction**
+
+    This example demonstrates how to create a new user, ensuring that the user creation and any related operations (like logging, or updating another collection) are treated atomically.
+
     ```javascript
-    // middleware/errorHandler.js
+    // controllers/authController.js
+    import User from '../models/User.js'; // Assuming you have a User model
+    import { genSalt, hash, compare } from 'bcryptjs'; // Import functions from bcryptjs and compare for login
+    import mongoose from 'mongoose'; // Import mongoose for session management
+    import jwt from 'jsonwebtoken'; // Import jsonwebtoken for token generation
 
-    const errorHandler = (err, req, res, next) => {
-      console.error(err.stack); // Log the error stack for debugging
+    // Make sure to define your User model in models/User.js first
+    /*
+    // models/User.js (Example)
+    import { Schema, model } from "mongoose";
+    const userSchema = new Schema({
+      name: { type: String, required: true },
+      email: { type: String, required: true, unique: true },
+      password: { type: String, required: true, select: false } // 'select: false' prevents password from being returned by default queries
+    });
 
-      const statusCode = err.statusCode || 500; // Use custom status code if available, else 500
-      const message = err.message || "Something went wrong on the server.";
+    // Hash password before saving
+    userSchema.pre('save', async function(next) {
+      if (!this.isModified('password')) return next();
+      const salt = await genSalt(10);
+      this.password = await hash(this.password, salt);
+      next();
+    });
 
-      res.status(statusCode).json({
-        success: false,
-        message: message,
-        // In development, you might send the error stack; in production, avoid it for security
-        stack: process.env.NODE_ENV === 'development' ? err.stack : {}
+    const User = model("User", userSchema);
+    export default User;
+    */
+
+    // Helper function to generate a JWT token
+    const generateToken = (id) => {
+      return jwt.sign({ id }, process.env.JWT_SECRET, {
+        expiresIn: '1h', // Token expires in 1 hour
       });
     };
 
-    export default errorHandler;
+    const signUp = async (req, res, next) => {
+      const session = await mongoose.startSession();
+      session.startTransaction();
+
+      try {
+        const { name, email, password } = req.body;
+
+        // Check if user already exists
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+          await session.abortTransaction();
+          return res.status(400).json({ message: "User with this email already exists." });
+        }
+
+        // Create the user document within the transaction
+        // Mongoose pre('save') hook handles password hashing for User.create
+        const user = await User.create([{ name, email, password }], { session });
+
+        // If all operations within the try block succeed, commit the transaction
+        await session.commitTransaction();
+
+        // Generate JWT token after successful user creation
+        const token = generateToken(user[0]._id);
+
+        // Send token in response (e.g., as a cookie or in the body)
+        // For cookies, you might use:
+        // res.cookie('jwt', token, {
+        //   httpOnly: true, // Makes cookie inaccessible to client-side JS
+        //   secure: process.env.NODE_ENV === 'production', // Only send over HTTPS in production
+        //   maxAge: 3600000 // 1 hour in milliseconds
+        // });
+
+        res.status(201).json({
+          success: true,
+          message: "User registered successfully!",
+          token, // Send the token
+          user: { id: user[0]._id, name: user[0].name, email: user[0].email }
+        });
+
+      } catch (error) {
+        await session.abortTransaction();
+        console.error("Transaction aborted:", error.message);
+        next(error); // Pass the error to the global error handler
+      } finally {
+        await session.endSession();
+      }
+    };
+
+
+    const logIn = async (req, res, next) => {
+      const { email, password } = req.body;
+
+      if (!email || !password) {
+        return res.status(400).json({ message: "Please enter email and password." });
+      }
+
+      try {
+        // Find user by email, explicitly selecting the password field
+        const user = await User.findOne({ email }).select('+password');
+
+        if (!user || !(await compare(password, user.password))) {
+          return res.status(401).json({ message: "Invalid credentials." });
+        }
+
+        // Generate JWT token upon successful login
+        const token = generateToken(user._id);
+
+        // Send token in response (e.g., as a cookie or in the body)
+        // res.cookie('jwt', token, { ... });
+
+        res.status(200).json({
+          success: true,
+          message: "Logged in successfully!",
+          token, // Send the token
+          user: { id: user._id, name: user.name, email: user.email }
+        });
+
+      } catch (error) {
+        console.error("Login error:", error.message);
+        next(error); // Pass the error to the global error handler
+      }
+    };
+
+    export { signUp, logIn }; // Export both controller functions
     ```
 
-* **Integrate into your `app.js` (or `server.js`):**
-    The global error handler should be the **last** middleware loaded in your Express application, after all other routes and middleware.
+### ✨ JWT Token Generation and Usage Flow
 
-    ```javascript
-    // server.js (or app.js)
-    import express from 'express';
-    import { PORT } from './config/env.js';
-    import connectToDB from './database/mongodb.js';
-    import authRouter from './routes/authRoutes.js';
-    import protectedRouter from './routes/someProtectedRoutes.js'; // Example protected routes
-    import errorHandler from './middleware/errorHandler.js'; // Import the error handler
-    import cookieParser from 'cookie-parser'; // For req.cookies in auth middleware
+1.  **Generation:**
+    * After a user successfully registers (`signUp`) or logs in (`logIn`), a JWT is generated.
+    * This token contains a payload (e.g., `user.id`), a secret key (from `process.env.JWT_SECRET`), and an expiration time.
+    * `jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });` creates the token.
 
-    const app = express();
+2.  **Sending the Token to the Client:**
+    * The generated JWT is sent back to the client as part of the successful response.
+    * **Common methods:**
+        * **HTTP-only Cookie:** Recommended for security. The token is stored in a cookie that is automatically sent with every subsequent request. `httpOnly: true` prevents client-side JavaScript from accessing it, mitigating XSS attacks. `secure: true` (in production) ensures it's only sent over HTTPS.
+        * **Response Body:** The token is sent in the JSON response (`{ token: '...' }`). The client-side application (e.g., React, Vue) then stores it (e.g., in `localStorage` or `sessionStorage`) and manually attaches it to subsequent requests, typically in the `Authorization` header (`Bearer <token>`).
 
-    // --- Standard Middleware ---
-    app.use(express.json()); // Parses JSON request bodies
-    app.use(cookieParser()); // Parses cookies for req.cookies
+3.  **Client-Side Storage & Attachment:**
+    * If using cookies, the browser handles it automatically.
+    * If using `localStorage`/`sessionStorage`, the client-side code will retrieve the token and add an `Authorization: Bearer <token>` header to all protected API calls.
 
-    // --- Routes ---
-    app.use("/api/auth", authRouter);
-    app.use("/api/protected", protectedRouter); // Example of using protected routes
+4.  **Token Verification on Subsequent Requests (Authentication Middleware - Revisited):**
+    * When the client sends a request to a protected route, the `authenticateUser` middleware (as shown in section 7) intercepts it.
+    * It extracts the JWT from the cookie or `Authorization` header.
+    * `jwt.verify(token, process.env.JWT_SECRET);` is used to verify the token's authenticity and expiration.
+    * If valid, the decoded payload (e.g., `user.id`) is attached to `req.user`, allowing the route handler to know which user made the request.
+    * If invalid or expired, an "Unauthorized" response is sent.
 
-    // --- Global Error Handler ---
-    // This MUST be the last middleware added to your Express app
-    app.use(errorHandler);
+### 🔄 Example Flow for Login:
 
-    // Start the server and connect to the database
-    app.listen(PORT, async () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-      await connectToDB();
-    });
-    ```
-    Any `throw new Error()` or unhandled promise rejections in your routes or other middleware will be caught by this `errorHandler`.
+1.  Client sends `POST /api/auth/login` with `email` and `password`.
+2.  `logIn` controller function receives request.
+3.  `User.findOne({ email }).select('+password')` fetches user from DB.
+4.  `bcryptjs.compare` verifies password.
+5.  `generateToken(user._id)` creates JWT.
+6.  Server sends `200 OK` response with JWT in body (or sets HTTP-only cookie). 
+7.  Client stores JWT.
+8.  Client sends `GET /api/protected/profile` with JWT in `Authorization` header (or automatically via cookie).
+9.  `authenticateUser` middleware verifies JWT.
+10. If valid, `req.user` is populated.
+11. `/profile` route handler executes, accessing `req.user` data.
+12. Server sends user profile data.
+
